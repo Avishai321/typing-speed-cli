@@ -10,7 +10,7 @@ public class Main {
             return;
         }
 
-        TerminalConfig.disableIcanon();
+        TerminalConfig.configTerminal();
         new TypingEngine(100_000_000).start();
     }
 }

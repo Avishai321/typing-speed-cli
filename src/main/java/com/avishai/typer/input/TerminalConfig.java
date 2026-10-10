@@ -71,7 +71,7 @@ The input redirection '< /dev/tty':
 public class TerminalConfig {
     private static volatile boolean isRawModeEnabled = false;
 
-    public static void disableIcanon() {
+    public static void configTerminal() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 if (!isRawModeEnabled) return;
