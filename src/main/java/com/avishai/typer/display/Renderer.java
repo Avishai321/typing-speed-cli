@@ -43,8 +43,7 @@ public class Renderer {
         appendSysPrompt(textSnapshot);
 
         // User text field.
-        sb.append("\n")
-                .append(textSnapshot.typedText());
+        sb.append("\n").append(textSnapshot.typedText());
 
         // States.
         sb.append("\n\n")
@@ -77,16 +76,16 @@ public class Renderer {
         for (int i = 0; i < limit; i++) {
             sb.append("\u001B[");
 
-            if (systemPrompt.charAt(i) == userText.charAt(i)) {
-                sb.append("42"); // Green background
-            } else sb.append("41"); // Red background
+            sb.append((systemPrompt.charAt(i) == userText.charAt(i)
+                    ? "42" // Green background
+                    : "41" // Red background
+            ));
 
-            sb.append("m")
-                    .append(systemPrompt.charAt(i));
+            sb.append("m").append(systemPrompt.charAt(i));
         }
 
-        sb.append("\u001B[0m") // Reset colors to default.
-                .append(systemPrompt.substring(limit));
+        sb.append("\u001B[0m"); // Reset colors to default.
+        sb.append(systemPrompt.substring(limit));
     }
 
     private String clear() {

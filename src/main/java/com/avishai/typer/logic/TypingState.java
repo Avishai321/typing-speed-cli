@@ -1,7 +1,7 @@
 package com.avishai.typer.logic;
 
 public class TypingState implements SnapshotProvider {
-    enum State {
+    public enum State {
         PENDING,
         TYPING,
         FINISHED
@@ -79,6 +79,7 @@ public class TypingState implements SnapshotProvider {
             return;
         }
 
+        // For every other char
         if (this.startNano == -1) {
             this.startNano = System.nanoTime();
         }
@@ -86,15 +87,6 @@ public class TypingState implements SnapshotProvider {
         lengthTyped++;
 
         state = State.TYPING;
-    }
-
-    public synchronized boolean isCompleted() {
-        return getTypedText().length() == getSystemPrompt().length()
-                && getAccuracy() == 100.0;
-    }
-
-    public synchronized boolean isFinished() {
-        return this.state.equals(State.FINISHED);
     }
 
     public synchronized double getAccuracy() {
@@ -112,13 +104,18 @@ public class TypingState implements SnapshotProvider {
         return ((double) correctChars / textField.length()) * 100;
     }
 
+    /**
+     * In professional typing tests, a "standard word"
+     * is strictly defined as exactly 5 characters,
+     * including spaces and punctuation.
+     */
     public synchronized double getWpm() {
         if (this.state.equals(State.PENDING)) return 0.0;
 
-        return WpmCalculator.calculateWPM(
-                getLengthTyped(),
-                getElapsedNanos()
-        );
+        double elapsedMinutes = getElapsedNanos() / 1_000_000_000.0 / 60.0;
+        double standardWords = lengthTyped / 5.0;
+
+        return standardWords / elapsedMinutes;
     }
 
     public synchronized double getElapsedNanos() {
@@ -131,21 +128,13 @@ public class TypingState implements SnapshotProvider {
         }
     }
 
-    public synchronized String getSystemPrompt() {
-        if (this.systemPrompt == null) return "";
-        return this.systemPrompt;
+    public synchronized boolean isCompleted() {
+        return textField.length() == systemPrompt.length()
+                && getAccuracy() == 100.0;
     }
 
-    public synchronized void setSystemPrompt(String prompt) {
-        this.systemPrompt = prompt;
-    }
-
-    public synchronized String getTypedText() {
-        return this.textField.toString();
-    }
-
-    public synchronized int getLengthTyped() {
-        return this.lengthTyped;
+    public synchronized State getState() {
+        return this.state;
     }
 
     public synchronized void setFinished() {
@@ -153,15 +142,17 @@ public class TypingState implements SnapshotProvider {
         this.state = State.FINISHED;
     }
 
-    public synchronized boolean isTyping() {
-        return this.state.equals(State.TYPING);
+    public synchronized void setSystemPrompt(String prompt) {
+        this.systemPrompt = prompt;
+    }
+
+    public synchronized void setTextField(String text) {
+        this.textField.setLength(0);
+        this.textField.append(text);
     }
 
     public synchronized TextSnapshot getTextSnapshot() {
-        return new TextSnapshot(
-                getSystemPrompt(),
-                getTypedText()
-        );
+        return new TextSnapshot(systemPrompt, textField.toString());
     }
 
     public synchronized StatesSnapshot getStatesSnapshot() {
@@ -170,10 +161,5 @@ public class TypingState implements SnapshotProvider {
                 getWpm(),
                 getAccuracy()
         );
-    }
-
-    public synchronized void setTextField(String text) {
-        this.textField.setLength(0);
-        this.textField.append(text);
     }
 }

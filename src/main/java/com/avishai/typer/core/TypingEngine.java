@@ -39,7 +39,7 @@ public class TypingEngine {
         renderer.render(typingState); // First render
 
         this.scheduler.scheduleAtFixedRate(() -> {
-            if (typingState.isTyping()) {
+            if (typingState.getState().equals(TypingState.State.TYPING)) {
                 renderer.render(typingState);
             }
         }, 0, this.statesUpdateNanos, TimeUnit.NANOSECONDS);
@@ -49,7 +49,7 @@ public class TypingEngine {
                 int input = System.in.read();
                 typingState.processKey((char) input);
 
-                if (typingState.isFinished()) {
+                if (typingState.getState().equals(TypingState.State.FINISHED)) {
                     break;
                 }
 
