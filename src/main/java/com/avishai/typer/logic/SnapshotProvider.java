@@ -1,4 +1,6 @@
 package com.avishai.typer.logic;
 
-public interface TypingSnapshotProvider {
+public interface SnapshotProvider {
+    TypingState.TextSnapshot getTextSnapshot();
+    TypingState.StatesSnapshot getStatesSnapshot();
 }
